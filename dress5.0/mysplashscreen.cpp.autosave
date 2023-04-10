@@ -1,0 +1,55 @@
+#include "mysplashscreen.h"
+#include<QDateTime>
+#include <QProgressBar>
+#include <QTimer>
+#include <QDebug>
+#include "unistd.h"
+#include<QSplashScreen>
+#include<QPixmap>
+#include<QWidget>
+mysplashscreen::mysplashscreen(QPixmap &pixmap,int time):QSplashScreen(pixmap),
+    elapseTime(time)
+{
+w = new QWidget(this);
+w->setGeometry(0,0,512,256);
+progressBar=new QProgressBar(this);
+progressBar->setGeometry(0,w->height()-14,w->width(),14);
+progressBar->setStyleSheet("QProgressBar{color:Gray;bankground-color:white;font:italic 10pt;text-align:center;}QProgressBar::chunk{background-color:rgb(0,0,0)}");
+progressBar->setRange(0,100);
+progressBar->setValue(0);
+generateAscendRandomNumber();
+setProgress();
+}
+mysplashscreen::~mysplashscreen()
+{
+
+}
+
+void mysplashscreen::setProgress()
+{
+    int tempTime=elapseTime/100;
+    for(int i=0;i<100;i++)
+    {
+        QTimer::singleShot(i*tempTime,this,SLOT(updateProgress()));
+    }
+     QTimer::singleShot(elapseTime,this,SLOT(close()));
+}
+
+void mysplashscreen::generateAscendRandomNumber()
+{
+    int i;
+    qsrand(static_cast<uint>(QTime(0,0,0).secsTo(QTime::currentTime())));
+    for(i=0;i<100;i++)
+    {
+        numberList.append(qrand()%101);
+    }
+    std::sort(numberList.begin(),numberList.end());
+
+}
+
+void mysplashscreen::updateProgress()
+{
+    static int num=0;
+    progressBar->setValue(numberList[num]);
+    num++;
+}
